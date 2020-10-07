@@ -20,5 +20,8 @@
   },
   "custom": {
     "modmenu:api": true
-  }
+  },
+  "mixins": [
+    "api-provider-api-v1.mixins.json"
+  ]
 }

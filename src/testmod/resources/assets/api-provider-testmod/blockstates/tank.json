@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": {"model": "api-provider-testmod:block/tank"}
+  }
+}

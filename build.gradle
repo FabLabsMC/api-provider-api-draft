@@ -48,6 +48,11 @@ if (System.env.REPO_NAME) {
 repositories {
 	mavenCentral()
 	maven { url "http://maven.fabricmc.net/" } // Fabric maven - home of Fabric API and ModMenu
+	// for LBA
+	maven {
+		name = "BuildCraft"
+		url = "https://mod-buildcraft.com/maven"
+	}
 }
 
 sourceSets {
@@ -66,6 +71,7 @@ dependencies {
 	afterEvaluate {
 		testmodImplementation sourceSets.main.output
 	}
+	modImplementation "alexiil.mc.lib:libblockattributes-all:${project.lba_version}"
 }
 
 checkstyle {
@@ -172,4 +178,10 @@ publishing {
 			artifact javadocsJar
 		}
 	}
+}
+
+// Run with the testmod too
+tasks.withType(net.fabricmc.loom.task.AbstractRunTask) {
+	classpath += sourceSets.testmod.runtimeClasspath
+	classpath += sourceSets.testmod.output
 }

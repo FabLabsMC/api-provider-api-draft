@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "io.github.fablabsmc.fablabs.mixin.provider",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "BlockEntityTypeAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
