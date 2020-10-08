@@ -138,7 +138,7 @@ public class TankBlockEntity extends BlockEntity implements BlockEntityClientSer
     public void tick() {
         if(!world.isClient) {
             // Try to move down 1 bucket of fluid per second.
-            FluidInsertable target = ApiProviderRegistry.INSTANCE.getFromBlock(ApiAccesses.FLUID_INSERTABLE, world, pos.offset(Direction.DOWN), Direction.UP);
+            FluidInsertable target = ApiProviderRegistry.getFromBlock(ApiKeys.FLUID_INSERTABLE, world, pos.offset(Direction.DOWN), Direction.UP);
             if(target != null) {
                 FluidVolumeUtil.move(this, target, FluidAmount.of(1, 20));
             }

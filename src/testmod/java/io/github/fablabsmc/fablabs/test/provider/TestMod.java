@@ -35,8 +35,8 @@ public class TestMod implements ModInitializer {
          * PROVIDER-API
          * Exposing FluidInsertable for the TankBlockEntity (it implements FluidInsertable).
          */
-        ApiProviderRegistry.INSTANCE.registerForBlockEntity(
-                ApiAccesses.FLUID_INSERTABLE,
+        ApiProviderRegistry.registerForBlockEntity(
+                ApiKeys.FLUID_INSERTABLE,
                 (be, side) -> {
                     return side == Direction.UP && be instanceof TankBlockEntity ? (TankBlockEntity) be : null;
                 },
