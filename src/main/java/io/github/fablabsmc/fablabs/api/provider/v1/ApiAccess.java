@@ -8,6 +8,4 @@ import net.minecraft.util.Identifier;
  */
 public interface ApiAccess<Api> {
     Identifier getId();
-
-    Class<?> getApiClass();
 }
