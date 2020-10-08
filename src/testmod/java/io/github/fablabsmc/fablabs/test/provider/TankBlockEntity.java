@@ -7,6 +7,7 @@ import alexiil.mc.lib.attributes.fluid.filter.FluidFilter;
 import alexiil.mc.lib.attributes.fluid.volume.FluidKey;
 import alexiil.mc.lib.attributes.fluid.volume.FluidKeys;
 import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
+import io.github.fablabsmc.fablabs.api.provider.v1.ApiProviderRegistry;
 import io.github.fablabsmc.fablabs.test.provider.mixin.ClientWorldMixin;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
@@ -137,11 +138,9 @@ public class TankBlockEntity extends BlockEntity implements BlockEntityClientSer
     public void tick() {
         if(!world.isClient) {
             // Try to move down 1 bucket of fluid per second.
-            try {
-                FluidInsertable target = ApiAccesses.FLUID_INSERTABLE_BLOCK_ACCESS.getProviderFromBlock(world, pos.offset(Direction.DOWN)).getFluidInsertable(Direction.UP);
+            FluidInsertable target = ApiProviderRegistry.INSTANCE.getFromBlock(ApiAccesses.FLUID_INSERTABLE, world, pos.offset(Direction.DOWN), Direction.UP);
+            if(target != null) {
                 FluidVolumeUtil.move(this, target, FluidAmount.of(1, 20));
-            } catch(NullPointerException npe) {
-                // TODO: fix NPE in BlockApiProviderAccessImpl#getProviderFromBlockEntity
             }
         }
     }
