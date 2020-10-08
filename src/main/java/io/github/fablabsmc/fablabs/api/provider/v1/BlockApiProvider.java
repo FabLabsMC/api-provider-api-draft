@@ -7,6 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @FunctionalInterface
-public interface BlockApiProvider<Api> {
-    @Nullable Api get(World world, BlockPos pos, @NotNull Direction direction);
+public interface BlockApiProvider<T> {
+    @Nullable T get(World world, BlockPos pos, @NotNull Direction direction);
 }

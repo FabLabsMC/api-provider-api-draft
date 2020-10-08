@@ -12,12 +12,16 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Api accesses for Blocks, BlockEntities and ItemStacks. TODO: implement ItemStacks
  */
-public interface ApiProviderRegistry {
-    ApiProviderRegistry INSTANCE = new ApiProviderRegistryImpl();
+public final class ApiProviderRegistry {
+    public static @Nullable <T> T getFromBlock(ApiKey<T> key, World world, BlockPos pos, @NotNull Direction direction) {
+        return ApiProviderRegistryImpl.getFromBlock(key, world, pos, direction);
+    }
 
-    @Nullable <Api> Api getFromBlock(ApiAccess<Api> apiAccess, World world, BlockPos pos, @NotNull Direction direction);
+    public static <T> void registerForBlock(ApiKey<T> key, BlockApiProvider<T> provider, Block... blocks) {
+        ApiProviderRegistryImpl.registerForBlock(key, provider, blocks);
+    }
 
-    <Api> void registerForBlock(ApiAccess<Api> apiAccess, BlockApiProvider<Api> provider, Block... blocks);
-
-    <Api> void registerForBlockEntity(ApiAccess<Api> apiAccess, BlockEntityApiProvider<Api> provider, BlockEntityType<?>... types);
+    public static <T> void registerForBlockEntity(ApiKey<T> key, BlockEntityApiProvider<T> provider, BlockEntityType<?>... types) {
+        ApiProviderRegistryImpl.registerForBlockEntity(key, provider, types);
+    }
 }
