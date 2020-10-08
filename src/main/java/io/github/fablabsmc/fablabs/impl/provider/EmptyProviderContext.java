@@ -14,16 +14,26 @@
  * limitations under the License.
  */
 
-package io.github.fablabsmc.fablabs.test.provider.client;
+package io.github.fablabsmc.fablabs.impl.provider;
 
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
+import java.util.NoSuchElementException;
 
-public class TestModClient implements ClientModInitializer {
-    @Override
-    public void onInitializeClient() {
-        ModelLoadingRegistry.INSTANCE.registerResourceProvider(rm -> new TestModelProvider());
+import io.github.fablabsmc.fablabs.api.provider.v1.ProviderContext;
 
-        System.out.println("TestMod client setup ok!");
-    }
+public final class EmptyProviderContext implements ProviderContext {
+	public static final EmptyProviderContext INSTANCE = new EmptyProviderContext();
+
+	private EmptyProviderContext() {
+	}
+
+	@Override
+	public <V> ProviderContext with(Key<V> key, V value) {
+		// Return an instance backed by a map and then `with`
+		return new MapBackedContextImpl().with(key, value);
+	}
+
+	@Override
+	public <V> V get(Key<V> key) {
+		return null;
+	}
 }

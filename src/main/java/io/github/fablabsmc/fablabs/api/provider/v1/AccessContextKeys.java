@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package io.github.fablabsmc.fablabs.test.provider.client;
+package io.github.fablabsmc.fablabs.api.provider.v1;
 
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
+import net.minecraft.util.math.Direction;
 
-public class TestModClient implements ClientModInitializer {
-    @Override
-    public void onInitializeClient() {
-        ModelLoadingRegistry.INSTANCE.registerResourceProvider(rm -> new TestModelProvider());
-
-        System.out.println("TestMod client setup ok!");
-    }
+/**
+ * An enumeration of common access context keys.
+ */
+public final class AccessContextKeys {
+	/**
+	 * A provider context key which allows specification of the direction when providing an api.
+	 */
+	public static final ProviderContext.Key<Direction> DIRECTION = ProviderContext.key(Direction.class);
 }

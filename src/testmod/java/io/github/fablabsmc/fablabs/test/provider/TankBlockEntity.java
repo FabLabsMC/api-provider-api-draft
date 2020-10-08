@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2016, 2017, 2018, 2019 FabricMC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.github.fablabsmc.fablabs.test.provider;
 
 import alexiil.mc.lib.attributes.Simulation;
@@ -7,7 +23,9 @@ import alexiil.mc.lib.attributes.fluid.filter.FluidFilter;
 import alexiil.mc.lib.attributes.fluid.volume.FluidKey;
 import alexiil.mc.lib.attributes.fluid.volume.FluidKeys;
 import alexiil.mc.lib.attributes.fluid.volume.FluidVolume;
+import io.github.fablabsmc.fablabs.api.provider.v1.AccessContextKeys;
 import io.github.fablabsmc.fablabs.api.provider.v1.ApiProviderRegistry;
+import io.github.fablabsmc.fablabs.api.provider.v1.ProviderContext;
 import io.github.fablabsmc.fablabs.test.provider.mixin.ClientWorldMixin;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachmentBlockEntity;
@@ -22,6 +40,8 @@ import net.minecraft.util.math.Direction;
 import java.math.RoundingMode;
 
 public class TankBlockEntity extends BlockEntity implements BlockEntityClientSerializable, RenderAttachmentBlockEntity, FluidTransferable, Tickable {
+    // We only ever ask for direction so we can get away with caching this
+    private static final ProviderContext UP_CONTEXT = ProviderContext.empty().with(AccessContextKeys.DIRECTION, Direction.UP);
     private FluidKey fluid = FluidKeys.EMPTY;
     private int amount = 0;
     private int capacity = 10000;
@@ -138,7 +158,13 @@ public class TankBlockEntity extends BlockEntity implements BlockEntityClientSer
     public void tick() {
         if(!world.isClient) {
             // Try to move down 1 bucket of fluid per second.
-            FluidInsertable target = ApiProviderRegistry.getFromBlock(ApiKeys.FLUID_INSERTABLE, world, pos.offset(Direction.DOWN), Direction.UP);
+            FluidInsertable target = ApiProviderRegistry.getFromBlock(
+                    ApiKeys.FLUID_INSERTABLE,
+                    UP_CONTEXT,
+                    world,
+                    pos.offset(Direction.DOWN)
+            );
+
             if(target != null) {
                 FluidVolumeUtil.move(this, target, FluidAmount.of(1, 20));
             }
