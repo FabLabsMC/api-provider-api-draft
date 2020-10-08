@@ -37,6 +37,7 @@ public class TestMod implements ModInitializer {
          */
         ApiProviderRegistry.registerForBlockEntity(
                 ApiKeys.FLUID_INSERTABLE,
+                ApiKeys.SIDED,
                 (be, side) -> {
                     return side == Direction.UP && be instanceof TankBlockEntity ? (TankBlockEntity) be : null;
                 },

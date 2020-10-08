@@ -3,6 +3,7 @@ package io.github.fablabsmc.fablabs.impl.provider;
 import io.github.fablabsmc.fablabs.api.provider.v1.ApiKey;
 import io.github.fablabsmc.fablabs.api.provider.v1.BlockApiProvider;
 import io.github.fablabsmc.fablabs.api.provider.v1.BlockEntityApiProvider;
+import io.github.fablabsmc.fablabs.api.provider.v1.ContextKey;
 import io.github.fablabsmc.fablabs.mixin.provider.BlockEntityTypeAccessor;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
@@ -10,36 +11,37 @@ import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Objects;
 
 public final class ApiProviderRegistryImpl {
-    private static final Map<ApiKey<?>, Map<Block, BlockApiProvider<?>>> blockProviders = new Reference2ObjectOpenHashMap<>();
+    private static final Map<ApiKey<?>, Map<ContextKey<?>, Map<Block, BlockApiProvider<?, ?>>>> blockProviders = new Reference2ObjectOpenHashMap<>();
     private static final Logger LOGGER = LogManager.getLogger();
 
-    public static <T> @Nullable T getFromBlock(ApiKey<T> key, World world, BlockPos pos, @NotNull Direction direction) {
+    public static <T, C> @Nullable T getFromBlock(ApiKey<T> key, ContextKey<C> contextKey, World world, BlockPos pos, C context) {
         if(key != null) {
-            Map<Block, BlockApiProvider<?>> providers = blockProviders.get(key);
+            Map<ContextKey<?>, Map<Block, BlockApiProvider<?, ?>>> providers = blockProviders.get(key);
             if(providers != null) {
-                Block block = world.getBlockState(pos).getBlock();
-                BlockApiProvider<?> provider = providers.get(block);
-                if(provider != null) {
-                    return (T) provider.get(world, pos, direction);
+                Map<Block, BlockApiProvider<?, ?>> providersWithContext = providers.get(contextKey);
+                if(providersWithContext != null) {
+                    Block block = world.getBlockState(pos).getBlock();
+                    BlockApiProvider<T, C> provider = (BlockApiProvider<T, C>) providersWithContext.get(block);
+                    if (provider != null) {
+                        return provider.get(world, pos, context);
+                    }
                 }
             }
         }
         return null;
     }
 
-    public static <T> void registerForBlock(ApiKey<T> key, BlockApiProvider<T> provider, Block... blocks) {
+    public static <T, C> void registerForBlock(ApiKey<T> key, ContextKey<C> contextKey, BlockApiProvider<T, C> provider, Block... blocks) {
         if(key != null) {
             Objects.requireNonNull(provider, "encountered null BlockApiProvider");
 
@@ -47,15 +49,16 @@ public final class ApiProviderRegistryImpl {
                 Objects.requireNonNull(block, "encountered null block while registering a block API provider mapping");
 
                 blockProviders.putIfAbsent(key, new Reference2ReferenceOpenHashMap<>());
+                blockProviders.get(key).putIfAbsent(contextKey, new Reference2ReferenceOpenHashMap<>());
 
-                if(blockProviders.get(key).putIfAbsent(block, provider) != null) {
+                if(blockProviders.get(key).get(contextKey).putIfAbsent(block, provider) != null) {
                     LOGGER.warn("Encountered duplicate API provider registration for block: " + Registry.BLOCK.getId(block));
                 }
             }
         }
     }
 
-    public static <T> void registerForBlockEntity(ApiKey<T> key, BlockEntityApiProvider<T> provider, BlockEntityType<?>... types) {
+    public static <T, C> void registerForBlockEntity(ApiKey<T> key, ContextKey<C> contextKey, BlockEntityApiProvider<T, C> provider, BlockEntityType<?>... types) {
         if(key != null) {
             Objects.requireNonNull(provider, "encountered null BlockEntityApiProvider");
 
@@ -63,15 +66,15 @@ public final class ApiProviderRegistryImpl {
                 Objects.requireNonNull(bet, "encountered null block entity type while registering a block entity API provider mapping");
 
                 Block[] blocks = ((BlockEntityTypeAccessor) bet).getBlocks().toArray(new Block[0]);
-                BlockApiProvider<T> blockProvider = (world, pos, direction) -> {
+                BlockApiProvider<T, C> blockProvider = (world, pos, context) -> {
                     BlockEntity be = world.getBlockEntity(pos);
                     if(be == null) {
                         return null;
                     } else {
-                        return provider.get(be, direction);
+                        return provider.get(be, context);
                     }
                 };
-                registerForBlock(key, blockProvider, blocks);
+                registerForBlock(key, contextKey, blockProvider, blocks);
             }
         }
     }
