@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.Objects;
 
-public class ApiProviderRegistryImpl {
+public final class ApiProviderRegistryImpl {
     private static final Map<ApiKey<?>, Map<Block, BlockApiProvider<?>>> blockProviders = new Reference2ObjectOpenHashMap<>();
     private static final Logger LOGGER = LogManager.getLogger();
 
