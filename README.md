@@ -51,13 +51,38 @@ It should also be possible to expose multiple instances of a generic interface, 
 
 ### Why include `Direction` in the context?
 Because we can expect that in most cases block accesses will have that information: accesses from a side machine/pipe, or click from an entity.
-It would be silly to ask that every api implementor check for the `null` direction case without knowing in what context it will be used. If you want to provide a wireless access api, you can use a custom registry, see below.
+It would be silly to ask that every api implementor check for the `null` direction case without knowing in what context it will be used.
+If you want to provide a wireless access api, you should probably expose it with another `ApiKey` and mention very clearly that direction should be irrelevant.
 
-### For block access, is it possible to provide more context than `World`, `BlockPos` and `Direction` ? Say I also want a `Color`.
-Yes. TODO
+### For block access, is it possible to provide more context than `World`, `BlockPos` and `Direction` ? Say I also want to expose a `FluidInsertable` based on a `Color`.
+Yes. You can use a "proxy API".
+```java
+@FunctionalInterface
+public interface ColoredFluidInsertable {
+    @Nullable getFromColor(Color color);
+}
+ApiKey<ColoredFluidInsertable> COLORED_FLUID_INSERTABLE = /*...*/;
+```
+
+You register this proxy using the `ApiProviderRegistry`:
+```java
+ApiProviderRegistry.registerForBlock(COLORED_FLUID_INSERTABLE, (world, pos, direction) -> {
+    return (color) -> {
+        /* Your provider logic that can use this extra context. */
+    };
+}, BLOCK_INSTANCE);
+```
+
+You would get an instance of this api like this (you would probably need a few null checks):
+```java
+FluidInsertable insertable = ApiProviderRegistry.getFromBlock(world, pos, direction).getFromColor(color);
+/* use the insertable */
+```
+
+This process is a bit more annoying, but it allows you to add any context!
 
 ### How can I expose an API for something other than blocks, items or entities? Say a rift from Dimensional Doors.
-Use a custom registry. TODO
+Use a custom registry. Nothing stops you from creating an `EnchantmentProviderRegistry` that will allow you to expose existing `ApiKey`s.
 
 ### For block access, is it possible to provide less context than `World`, `BlockPos` and `Direction` ?
 You need to provide a `World` and a `BlockPos`, or you need a custom provider because `ApiProviderRegistry` won't work without that!
