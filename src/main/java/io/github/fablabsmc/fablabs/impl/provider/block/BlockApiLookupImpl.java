@@ -4,8 +4,6 @@ import io.github.fablabsmc.fablabs.api.provider.v1.AbstractApiLookup;
 import io.github.fablabsmc.fablabs.api.provider.v1.ApiKey;
 import io.github.fablabsmc.fablabs.api.provider.v1.ContextKey;
 import io.github.fablabsmc.fablabs.api.provider.v1.block.BlockApiLookup;
-import io.github.fablabsmc.fablabs.api.provider.v1.block.BlockApiProvider;
-import io.github.fablabsmc.fablabs.api.provider.v1.block.BlockEntityApiProvider;
 import io.github.fablabsmc.fablabs.mixin.provider.BlockEntityTypeAccessor;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
@@ -16,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public final class BlockApiLookupImpl<T, C> extends AbstractApiLookup<T, C, Block, BlockApiProvider<?, ?>> implements BlockApiLookup<T, C> {
+public final class BlockApiLookupImpl<T, C> extends AbstractApiLookup<T, C, Block, BlockApiLookup.BlockApiProvider<?, ?>> implements BlockApiLookup<T, C> {
     BlockApiLookupImpl(ApiKey<T> apiKey, ContextKey<C> contextKey) {
         super(apiKey, contextKey);
     }
