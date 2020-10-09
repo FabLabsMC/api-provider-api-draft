@@ -19,29 +19,17 @@ public class ApiProviderMapImpl<L extends AbstractApiLookup<?, ?, K, P>, K, P> i
     }
 
     public static <L extends AbstractApiLookup<?, ?, K, P>, K, P> ApiProviderMap<L, K, P> create(LookupConstructor<L, K, P> lookupConstructor) {
-        ApiProviderMap<L, K, P> map = new ApiProviderMapImpl<>(lookupConstructor);
-
-        ApiProviderApiImpl.addProviderMap(map);
-
-        return map;
+        return new ApiProviderMapImpl<>(lookupConstructor);
     }
 
-    public @NotNull L getLookup(ApiKey<?> key, ContextKey<?> contextKey) {
-        synchronized (ApiProviderApiImpl.LOCK) {
-            lookups.putIfAbsent(key, new Reference2ReferenceOpenHashMap<>());
-            lookups.get(key).computeIfAbsent(contextKey, ctx -> {
-                L lookup = lookupConstructor.create(key, contextKey);
-                if(ApiProviderApiImpl.isInitialized()) {
-                    lookup.initialize();
-                }
-                return lookup;
-            });
-            return lookups.get(key).get(contextKey);
-        }
+    public synchronized @NotNull L getLookup(ApiKey<?> key, ContextKey<?> contextKey) {
+        lookups.putIfAbsent(key, new Reference2ReferenceOpenHashMap<>());
+        lookups.get(key).computeIfAbsent(contextKey, ctx -> lookupConstructor.create(key, contextKey));
+        return lookups.get(key).get(contextKey);
     }
 
     @Override
-    public Iterable<L> getLookups() {
+    public synchronized Iterable<L> getLookups() {
         return lookups.values().stream().flatMap(apiLookups -> apiLookups.values().stream()).collect(Collectors.toList());
     }
 }

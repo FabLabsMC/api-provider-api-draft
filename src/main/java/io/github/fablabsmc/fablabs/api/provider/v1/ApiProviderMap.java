@@ -3,8 +3,6 @@ package io.github.fablabsmc.fablabs.api.provider.v1;
 import io.github.fablabsmc.fablabs.impl.provider.ApiProviderMapImpl;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Supplier;
-
 /**
  * The building block for creating your own Provider. You should store an instance of this interface in a static variable.
  */

@@ -1,6 +1,5 @@
 package io.github.fablabsmc.fablabs.api.provider.v1;
 
-import io.github.fablabsmc.fablabs.impl.provider.ApiProviderApiImpl;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,8 +16,7 @@ public abstract class AbstractApiLookup<T, C, K, P> implements ApiLookup<T, C> {
 
     private final ApiKey<T> apiKey;
     private final ContextKey<C> contextKey;
-    private final Map<K, P> lookups = new Reference2ReferenceOpenHashMap<>();
-    private volatile boolean initialized = false;
+    private volatile Map<K, P> lookups = new Reference2ReferenceOpenHashMap<>();
 
     protected AbstractApiLookup(ApiKey<T> apiKey, ContextKey<C> contextKey) {
         this.apiKey = apiKey;
@@ -26,21 +24,16 @@ public abstract class AbstractApiLookup<T, C, K, P> implements ApiLookup<T, C> {
     }
 
     protected @Nullable P get(K key) {
-        if(!initialized) {
-            throw new RuntimeException("Attempted to get() from an uninitialized AbstractApiLookup");
-        }
         return lookups.get(key);
     }
 
-    protected void putIfAbsent(K key, P provider) {
-        synchronized (ApiProviderApiImpl.LOCK) {
-            if(initialized) {
-                throw new RuntimeException("Attempted to register a provider in an initialized AbstractApiLookup");
-            }
-            if(lookups.putIfAbsent(key, provider) != null) {
-                LOGGER.warn("Attempted to overwrite a provider in an AbstractApiLookup"); // TODO: better error message
-            }
+    protected synchronized void putIfAbsent(K key, P provider) {
+        // We use a copy-on-write strategy to allow any number of reads to concur with a write
+        Map<K, P> lookupsCopy = new Reference2ReferenceOpenHashMap<>(lookups);
+        if(lookupsCopy.putIfAbsent(key, provider) != null) {
+            LOGGER.warn("Attempted to overwrite a provider in an AbstractApiLookup!"); // TODO: better error message
         }
+        lookups = lookupsCopy;
     }
 
     @NotNull
@@ -50,9 +43,5 @@ public abstract class AbstractApiLookup<T, C, K, P> implements ApiLookup<T, C> {
     @NotNull
     public ContextKey<C> getContextKey() {
         return contextKey;
-    }
-
-    public void initialize() {
-        initialized = true;
     }
 }

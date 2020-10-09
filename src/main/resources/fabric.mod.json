@@ -11,14 +11,6 @@
     "sources": "https://github.com/${repo}"
   },
   "environment": "*",
-  "entrypoints": {
-    "client": [
-      "io.github.fablabsmc.fablabs.impl.provider.ApiProviderClient"
-    ],
-    "server": [
-      "io.github.fablabsmc.fablabs.impl.provider.ApiProviderDedicatedServer"
-    ]
-  },
   "depends": {
     "fabricloader": ">=0.4.0"
   },
