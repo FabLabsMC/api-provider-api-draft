@@ -27,7 +27,7 @@ If you were to query the `FluidInsertable` from an item stack, (1) would be the 
        void sendExcessStack(ItemStack excessStack);
    }
    ContextKey<@NotNull Direction> SIDED = ContextKey.create(Direction.class, new Identifier("c", "sided"));
-   ContextKey<@NotNull InventoryStackContext> EXCESS_STACKS = ContextKey.create(InventoryStackContext.class, new Identifier("mylib", "excess_stacks"));
+   ContextKey<@NotNull ExcessStacksContext> EXCESS_STACKS = ContextKey.create(ExcessStacksContext.class, new Identifier("mylib", "excess_stacks"));
    ```
    This Api will also provide a few common context, like `ContextKey<@Nullable Object> NO_CONTEXT` for example.
 
@@ -59,35 +59,8 @@ LOOKUP.registerForBlocks((world, pos, side) -> { /* return your instance of Flui
 
 ### Creating your own registry
 TODO
+
 For now have a look at the implementation for blocks.
-
-### `ApiKey`
-Every provided API is represented by a unique reference: an instance of the `ApiKey` class.
-
-### `ContextKey`
-Every provided type of context is represented by a unique reference: an instance of the `ContextKey` class.
-
-### Exposing an API with `ApiProvider`
-To expose an API for a block, one needs to register a `BlockApiProvider` that will provide an API implementation from the context parameters:
-```java
-@FunctionalInterface
-public interface BlockApiProvider<T> {
-    @Nullable T get(World world, BlockPos pos, @NotNull Direction direction);
-}
-```
-
-It is also possible to register a provider for a block entity:
-```java
-@FunctionalInterface
-public interface BlockEntityApiProvider<T> {
-    @Nullable T get(BlockEntity blockEntity, @NotNull Direction direction);
-}
-```
-
-Then, one needs to grab the `ApiKey`, and register that with the provider and the block / block entities in the `ApiProviderRegistry`.
-
-### Getting an API
-To access an api in the world, one needs to grab the `ApiKey` first, then one can get an instance by calling `ApiProviderRegistry.getFromBlock(world, pos, direction)`.
 
 ## Questions
 ### Why does registering an `ApiKey` or a `ContextKey` need both a class and an `Identifier`?
