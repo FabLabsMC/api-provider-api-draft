@@ -9,7 +9,7 @@ import net.minecraft.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 public class BlockApiProviderRegistryImpl {
-    private static final ApiProviderMap<BlockApiLookupImpl<?, ?>, Block, BlockApiProvider<?, ?>> providers = new ApiProviderMap<>(BlockApiLookupImpl::new);
+    private static final ApiProviderMap<BlockApiLookupImpl<?, ?>, Block, BlockApiProvider<?, ?>> providers = ApiProviderMap.create(BlockApiLookupImpl::new);
 
     public static <T, C> @NotNull BlockApiLookup<T, C> getLookup(ApiKey<T> key, ContextKey<C> contextKey) {
         return (BlockApiLookup<T, C>) providers.getLookup(key, contextKey);

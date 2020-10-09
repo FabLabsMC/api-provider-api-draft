@@ -1,6 +1,8 @@
 package io.github.fablabsmc.fablabs.impl.provider.block;
 
-import io.github.fablabsmc.fablabs.api.provider.v1.ApiLookup;
+import io.github.fablabsmc.fablabs.api.provider.v1.AbstractApiLookup;
+import io.github.fablabsmc.fablabs.api.provider.v1.ApiKey;
+import io.github.fablabsmc.fablabs.api.provider.v1.ContextKey;
 import io.github.fablabsmc.fablabs.api.provider.v1.block.BlockApiLookup;
 import io.github.fablabsmc.fablabs.api.provider.v1.block.BlockApiProvider;
 import io.github.fablabsmc.fablabs.api.provider.v1.block.BlockEntityApiProvider;
@@ -14,7 +16,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class BlockApiLookupImpl<T, C> extends ApiLookup<Block, BlockApiProvider<?, ?>> implements BlockApiLookup<T, C> {
+public final class BlockApiLookupImpl<T, C> extends AbstractApiLookup<T, C, Block, BlockApiProvider<?, ?>> implements BlockApiLookup<T, C> {
+    BlockApiLookupImpl(ApiKey<T> apiKey, ContextKey<C> contextKey) {
+        super(apiKey, contextKey);
+    }
+
     @Nullable
     @Override
     public T get(World world, BlockPos pos, C context) {
