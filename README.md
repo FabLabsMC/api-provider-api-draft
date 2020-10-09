@@ -14,7 +14,7 @@ For example, if you were to query a `FluidInsertable` from a block, (1) would be
 
 If you were to query the `FluidInsertable` from an item stack, (1) would be the item stack, (2) would be the same identifier, and (3) would be a way to modify the current stack and somehow take care of the full buckets that could be produced.
 
-1) The minimum context you need is encoded in a very rigid manner in the type system. For a block access, you will need to use `BlockApiProviderRegistry`. For an item stack access, you will need to use `ItemApiProviderRegistry`, etc... This API provides building blocks for building custom registries.
+1) The minimum context you need is encoded in a very rigid manner in the type system. For a block access, you will need to use `BlockApiLookupRegistry`. For an item stack access, you will need to use `ItemApiLookupRegistry`, etc... This API provides building blocks for building custom registries.
 2) An `ApiKey` is the combination of an interface, and an extra identifier. For example, our fluid insertable identifier could be defined like this:
    ```java
    ApiKey<FluidInsertable> FLUID_INSERTABLE = ApiKey.create(FluidInsertable.class, new Identifier("mylib", "fluid_insertable"));
@@ -32,9 +32,9 @@ If you were to query the `FluidInsertable` from an item stack, (1) would be the 
    This Api will also provide a few common context, like `ContextKey<@Nullable Object> NO_CONTEXT` for example.
 
 ### Querying an API
-Let's take our first example. We wish to query `FLUID_INSERTABLE` from a block in the world, using `SIDED` as context. The first step is getting a `BlockApiLookup` from the corresponding registry `BlockApiProviderRegistry` and caching it:
+Let's take our first example. We wish to query `FLUID_INSERTABLE` from a block in the world, using `SIDED` as context. The first step is getting a `BlockApiLookup` from the corresponding registry `BlockApiLookupRegistry` and caching it:
 ```java
-BlockApiLookup<FluidInsertable, @NotNull Direction> LOOKUP = BlockApiProviderRegistry.get(FLUID_INSERTABLE, SIDED);
+BlockApiLookup<FluidInsertable, @NotNull Direction> LOOKUP = BlockApiLookupRegistry.get(FLUID_INSERTABLE, SIDED);
 ```
 Now, we can query the api by providing the world, the position and the extra context (here `Direction`) to the Lookup:
 ```java
