@@ -28,7 +28,7 @@ public final class ApiKey<T> {
         return identifier;
     }
 
-    public static <T> ApiKey<T> create(Class<T> clazz, Identifier identifier) {
+    public synchronized static <T> ApiKey<T> create(Class<T> clazz, Identifier identifier) {
         Objects.requireNonNull(clazz, "encountered null class in ApiKey creation");
         Objects.requireNonNull(identifier, "encountered null identifier in ApiKey creation");
 

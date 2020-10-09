@@ -28,7 +28,7 @@ public final class ContextKey<C> {
         return identifier;
     }
 
-    public static <C> ContextKey<C> create(Class<C> clazz, Identifier identifier) {
+    public synchronized static <C> ContextKey<C> create(Class<C> clazz, Identifier identifier) {
         Objects.requireNonNull(clazz, "encountered null class in ContextKey creation");
         Objects.requireNonNull(identifier, "encountered null identifier in ContextKey creation");
 
