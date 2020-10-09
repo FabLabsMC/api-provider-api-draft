@@ -10,7 +10,7 @@ import java.util.Objects;
  * Unique reference to a type of context.
  */
 public final class ContextKey<C> {
-    private static final Map<Class<?>, Map<Identifier, ContextKey<?>>> apiKeys = new HashMap<>();
+    private static final Map<Class<?>, Map<Identifier, ContextKey<?>>> contextKeys = new HashMap<>();
 
     private ContextKey() { }
 
@@ -18,8 +18,8 @@ public final class ContextKey<C> {
         Objects.requireNonNull(clazz, "encountered null class in ContextKey creation");
         Objects.requireNonNull(identifier, "encountered null identifier in ContextKey creation");
 
-        apiKeys.putIfAbsent(clazz, new HashMap<>());
-        apiKeys.get(clazz).putIfAbsent(identifier, new ContextKey<>());
-        return (ContextKey<C>) apiKeys.get(clazz).get(identifier);
+        contextKeys.putIfAbsent(clazz, new HashMap<>());
+        contextKeys.get(clazz).putIfAbsent(identifier, new ContextKey<>());
+        return (ContextKey<C>) contextKeys.get(clazz).get(identifier);
     }
 }

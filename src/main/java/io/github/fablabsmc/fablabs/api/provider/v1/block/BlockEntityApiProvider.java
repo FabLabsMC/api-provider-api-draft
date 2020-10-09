@@ -1,4 +1,4 @@
-package io.github.fablabsmc.fablabs.api.provider.v1;
+package io.github.fablabsmc.fablabs.api.provider.v1.block;
 
 import net.minecraft.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;

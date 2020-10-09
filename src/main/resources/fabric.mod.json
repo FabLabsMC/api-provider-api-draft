@@ -12,7 +12,11 @@
   },
   "environment": "*",
   "entrypoints": {
-    "main": [
+    "client": [
+      "io.github.fablabsmc.fablabs.impl.provider.ApiProviderClient"
+    ],
+    "server": [
+      "io.github.fablabsmc.fablabs.impl.provider.ApiProviderDedicatedServer"
     ]
   },
   "depends": {

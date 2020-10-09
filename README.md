@@ -5,19 +5,67 @@
 ## What is the point ?
 It's a way to define an API and get implementations of it from blocks, items, or anything else really.
 
-## Use cases
-### 1. Fluid API
-A Fluid API mod defines a `FluidInsertable` and a `FluidExtractable` interface, and exposes flexible access to them.
-
-### 2. Vanilla Inventory (or any other class)
-Some mod exposes access to the Vanilla `Inventory`, so that it can be retrieved in a more flexible way.
-
-### 3. Generic I/O API
-Some mod defines an `Insertable<T>` and an `Extractable<T>`, and exposes flexible access to them.
+This API defines the types for general api access, the building blocks for registring api accesses, and implementations for the most common use cases, i.e. blocks, items and entities.
 
 ## The solution
+Every API access needs (1) minimum context for the query to function, (2) the api to query, and (3) additional context to provide.
+
+For example, if you were to query a `FluidInsertable` from a block, (1) would be the world and the position, (2) would be an identifier for `FluidInsertable`, (3) would be the direction, or null if you don't want sided access.
+
+If you were to query the `FluidInsertable` from an item stack, (1) would be the item stack, (2) would be the same identifier, and (3) would be a way to modify the current stack and somehow take care of the full buckets that could be produced.
+
+1) The minimum context you need is encoded in a very rigid manner in the type system. For a block access, you will need to use `BlockApiProviderRegistry`. For an item stack access, you will need to use `ItemApiProviderRegistry`, etc... This API provides building blocks for building custom registries.
+2) An `ApiKey` is the combination of an interface, and an extra identifier. For example, our fluid insertable identifier could be defined like this:
+   ```java
+   ApiKey<FluidInsertable> FLUID_INSERTABLE = ApiKey.create(FluidInsertable.class, new Identifier("mylib", "fluid_insertable"));
+   ```
+3) The extra context you need, `ContextKey`, is the combination of the context class for the extra context, and an extra identifier. It is very similar to an `ApiKey`:
+   ```java
+   /* An example interface that allows updating the current stack, and sending back filled buckets. */
+   interface ExcessStacksContext {
+       void setStack(ItemStack newStack);
+       void sendExcessStack(ItemStack excessStack);
+   }
+   ContextKey<@NotNull Direction> SIDED = ContextKey.create(Direction.class, new Identifier("c", "sided"));
+   ContextKey<@NotNull InventoryStackContext> EXCESS_STACKS = ContextKey.create(InventoryStackContext.class, new Identifier("mylib", "excess_stacks"));
+   ```
+   This Api will also provide a few common context, like `ContextKey<@Nullable Object> NO_CONTEXT` for example.
+
+### Querying an API
+Let's take our first example. We wish to query `FLUID_INSERTABLE` from a block in the world, using `SIDED` as context. The first step is getting a `BlockApiLookup` from the corresponding registry `BlockApiProviderRegistry` and caching it:
+```java
+BlockApiLookup<FluidInsertable, @NotNull Direction> LOOKUP = BlockApiProviderRegistry.get(FLUID_INSERTABLE, SIDED);
+```
+Now, we can query the api by providing the world, the position and the extra context (here `Direction`) to the Lookup:
+```java
+FluidInsertable fluidInsertable = LOOKUP.get(world, pos, direction);
+```
+
+So, (1) is encoded by the registry you are using, which returns a specific `ApiLookup` class. (2) and (3) are encoded in the `Lookup` instance you received from the registry.
+
+### Registering an API
+An _ApiProvider_ is a function that maps a context of type `C` to an implementation of an api `T`. For example, take a look at a `BlockApiProvider`:
+```java
+@FunctionalInterface
+public interface BlockApiProvider<T, C> {
+    @Nullable T get(World world, BlockPos pos, C context);
+}
+```
+
+Now, let's register a sided `FluidInsertable` provider for a `FLUID_TRASH_CAN` block. We will use the `Lookup` we defined earlier:
+```java
+LOOKUP.registerForBlocks((world, pos, side) -> { /* return your instance of FluidInsertable */ }, FLUID_TRASH_CAN);
+```
+
+### Creating your own registry
+TODO
+For now have a look at the implementation for blocks.
+
 ### `ApiKey`
-Every provided API is represented by a unique reference: an instance of the class `ApiKey`.
+Every provided API is represented by a unique reference: an instance of the `ApiKey` class.
+
+### `ContextKey`
+Every provided type of context is represented by a unique reference: an instance of the `ContextKey` class.
 
 ### Exposing an API with `ApiProvider`
 To expose an API for a block, one needs to register a `BlockApiProvider` that will provide an API implementation from the context parameters:
@@ -42,50 +90,11 @@ Then, one needs to grab the `ApiKey`, and register that with the provider and th
 To access an api in the world, one needs to grab the `ApiKey` first, then one can get an instance by calling `ApiProviderRegistry.getFromBlock(world, pos, direction)`.
 
 ## Questions
-### Why does registering an `ApiKey` need both a class and an `Identifier`?
+### Why does registering an `ApiKey` or a `ContextKey` need both a class and an `Identifier`?
 It's pretty obvious that the class is needed for compile-time type checking.
 
 The `Identifier` is also necessary because an API might be used with different semantics, see use case 2.
 
-It should also be possible to expose multiple instances of a generic interface, which have the same `Class<>`, but need to have different `ApiKey`s. See use case 3
+It should also be possible to expose multiple instances of a generic interface, which have the same `Class<>`, but need to have different `ApiKey`s.
 
-### Why include `Direction` in the context?
-Because we can expect that in most cases block accesses will have that information: accesses from a side machine/pipe, or click from an entity.
-It would be silly to ask that every api implementor check for the `null` direction case without knowing in what context it will be used.
-If you want to provide a wireless access api, you should probably expose it with another `ApiKey` and mention very clearly that direction should be irrelevant.
-
-### For block access, is it possible to provide more context than `World`, `BlockPos` and `Direction` ? Say I also want to expose a `FluidInsertable` based on a `Color`.
-Yes. You can use a "proxy API".
-```java
-@FunctionalInterface
-public interface ColoredFluidInsertable {
-    @Nullable getFromColor(Color color);
-}
-ApiKey<ColoredFluidInsertable> COLORED_FLUID_INSERTABLE = /*...*/;
-```
-
-You register this proxy using the `ApiProviderRegistry`:
-```java
-ApiProviderRegistry.registerForBlock(COLORED_FLUID_INSERTABLE, (world, pos, direction) -> {
-    return (color) -> {
-        /* Your provider logic that can use this extra context. */
-    };
-}, BLOCK_INSTANCE);
-```
-
-You would get an instance of this api like this (you would probably need a few null checks):
-```java
-FluidInsertable insertable = ApiProviderRegistry.getFromBlock(world, pos, direction).getFromColor(color);
-/* use the insertable */
-```
-
-This process is a bit more annoying, but it allows you to add any context!
-
-### How can I expose an API for something other than blocks, items or entities? Say a rift from Dimensional Doors.
-Use a custom registry. Nothing stops you from creating an `EnchantmentProviderRegistry` that will allow you to expose existing `ApiKey`s.
-
-### For block access, is it possible to provide less context than `World`, `BlockPos` and `Direction` ?
-You need to provide a `World` and a `BlockPos`, or you need a custom provider because `ApiProviderRegistry` won't work without that!
-
-If you don't want to provide a `Direction`, the api implementor will need to know that because it's an unusual case.
-So you should define a new api and write very clearly in the documentation that the direction will be some fixed value.
+Same answer for `ContextKey`s.

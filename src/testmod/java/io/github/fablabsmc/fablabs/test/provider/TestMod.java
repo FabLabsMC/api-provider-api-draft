@@ -1,6 +1,5 @@
 package io.github.fablabsmc.fablabs.test.provider;
 
-import io.github.fablabsmc.fablabs.api.provider.v1.ApiProviderRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.Material;
@@ -35,9 +34,7 @@ public class TestMod implements ModInitializer {
          * PROVIDER-API
          * Exposing FluidInsertable for the TankBlockEntity (it implements FluidInsertable).
          */
-        ApiProviderRegistry.registerForBlockEntity(
-                ApiKeys.FLUID_INSERTABLE,
-                ApiKeys.SIDED,
+        ApiKeys.SIDED_FLUID_INSERTABLE.registerForBlockEntities(
                 (be, side) -> {
                     return side == Direction.UP && be instanceof TankBlockEntity ? (TankBlockEntity) be : null;
                 },
