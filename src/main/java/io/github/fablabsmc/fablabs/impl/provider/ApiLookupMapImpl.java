@@ -14,12 +14,8 @@ public class ApiLookupMapImpl<L> implements ApiLookupMap<L> {
     private final Map<ApiKey<?>, Map<ContextKey<?>, L>> lookups = new Reference2ReferenceOpenHashMap<>();
     private final LookupFactory<L> lookupFactory;
 
-    private ApiLookupMapImpl(LookupFactory<L> lookupFactory) {
+    public ApiLookupMapImpl(LookupFactory<L> lookupFactory) {
         this.lookupFactory = lookupFactory;
-    }
-
-    public static <L> ApiLookupMap<L> create(LookupFactory<L> lookupFactory) {
-        return new ApiLookupMapImpl<>(lookupFactory);
     }
 
     public synchronized @NotNull L getLookup(ApiKey<?> key, ContextKey<?> contextKey) {

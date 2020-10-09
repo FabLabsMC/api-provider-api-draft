@@ -2,6 +2,7 @@ package io.github.fablabsmc.fablabs.impl.provider.block;
 
 import io.github.fablabsmc.fablabs.api.provider.v1.AbstractApiLookup;
 import io.github.fablabsmc.fablabs.api.provider.v1.ApiKey;
+import io.github.fablabsmc.fablabs.api.provider.v1.ApiProviderMap;
 import io.github.fablabsmc.fablabs.api.provider.v1.ContextKey;
 import io.github.fablabsmc.fablabs.api.provider.v1.block.BlockApiLookup;
 import io.github.fablabsmc.fablabs.mixin.provider.BlockEntityTypeAccessor;
@@ -9,12 +10,18 @@ import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public final class BlockApiLookupImpl<T, C> extends AbstractApiLookup<T, C, Block, BlockApiLookup.BlockApiProvider<?, ?>> implements BlockApiLookup<T, C> {
+public final class BlockApiLookupImpl<T, C> extends AbstractApiLookup<T, C> implements BlockApiLookup<T, C> {
+    private static final Logger LOGGER = LogManager.getLogger();
+    private final ApiProviderMap<Block, BlockApiProvider> providerMap = ApiProviderMap.create();
+
     BlockApiLookupImpl(ApiKey<T> apiKey, ContextKey<C> contextKey) {
         super(apiKey, contextKey);
     }
@@ -22,7 +29,7 @@ public final class BlockApiLookupImpl<T, C> extends AbstractApiLookup<T, C, Bloc
     @Nullable
     @Override
     public T get(World world, BlockPos pos, C context) {
-        BlockApiProvider<T, C> provider = (BlockApiProvider<T, C>) get(world.getBlockState(pos).getBlock());
+        BlockApiProvider<T, C> provider = (BlockApiProvider<T, C>) providerMap.get(world.getBlockState(pos).getBlock());
         if(provider != null) {
             return provider.get(world, pos, context);
         } else {
@@ -37,7 +44,9 @@ public final class BlockApiLookupImpl<T, C> extends AbstractApiLookup<T, C, Bloc
         for(final Block block : blocks) {
             Objects.requireNonNull(block, "encountered null block while registering a block API provider mapping");
 
-            putIfAbsent(block, provider);
+            if(providerMap.putIfAbsent(block, provider) != null) {
+                LOGGER.warn("Encountered duplicate API provider registration for block: " + Registry.BLOCK.getId(block));
+            }
         }
     }
 

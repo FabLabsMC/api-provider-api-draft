@@ -7,9 +7,8 @@ import org.jetbrains.annotations.NotNull;
  * The building block for creating your own Provider. You should store an instance of this interface in a static variable.
  */
 public interface ApiLookupMap<L> extends Iterable<L> {
-
     static <L> ApiLookupMap<L> create(LookupFactory<L> lookupFactory) {
-        return ApiLookupMapImpl.create(lookupFactory);
+        return new ApiLookupMapImpl<>(lookupFactory);
     }
 
     @NotNull L getLookup(ApiKey<?> apiKey, ContextKey<?> contextKey);

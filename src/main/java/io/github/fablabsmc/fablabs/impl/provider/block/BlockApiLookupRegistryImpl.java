@@ -6,7 +6,7 @@ import io.github.fablabsmc.fablabs.api.provider.v1.ContextKey;
 import io.github.fablabsmc.fablabs.api.provider.v1.block.BlockApiLookup;
 import org.jetbrains.annotations.NotNull;
 
-public class BlockApiProviderRegistryImpl {
+public class BlockApiLookupRegistryImpl {
     private static final ApiLookupMap<BlockApiLookupImpl<?, ?>> providers = ApiLookupMap.create(BlockApiLookupImpl::new);
 
     public static <T, C> @NotNull BlockApiLookup<T, C> getLookup(ApiKey<T> key, ContextKey<C> contextKey) {
