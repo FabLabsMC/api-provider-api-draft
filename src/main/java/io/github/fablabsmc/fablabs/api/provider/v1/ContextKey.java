@@ -1,13 +1,12 @@
 package io.github.fablabsmc.fablabs.api.provider.v1;
 
-import net.minecraft.util.Identifier;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import com.mojang.datafixers.util.Unit;
 import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.util.Identifier;
 
 /**
  * Unique reference to a type of context.
