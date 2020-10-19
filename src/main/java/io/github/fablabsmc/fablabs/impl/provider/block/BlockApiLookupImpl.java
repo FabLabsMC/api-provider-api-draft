@@ -1,7 +1,7 @@
 package io.github.fablabsmc.fablabs.impl.provider.block;
 
-import io.github.fablabsmc.fablabs.api.provider.v1.AbstractApiLookup;
 import io.github.fablabsmc.fablabs.api.provider.v1.ApiKey;
+import io.github.fablabsmc.fablabs.api.provider.v1.ApiLookup;
 import io.github.fablabsmc.fablabs.api.provider.v1.ApiProviderMap;
 import io.github.fablabsmc.fablabs.api.provider.v1.ContextKey;
 import io.github.fablabsmc.fablabs.api.provider.v1.block.BlockApiLookup;
@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public final class BlockApiLookupImpl<T, C> extends AbstractApiLookup<T, C> implements BlockApiLookup<T, C> {
+public final class BlockApiLookupImpl<T, C> extends BlockApiLookup<T, C> {
     private static final Logger LOGGER = LogManager.getLogger();
     private final ApiProviderMap<Block, BlockApiProvider> providerMap = ApiProviderMap.create();
 
