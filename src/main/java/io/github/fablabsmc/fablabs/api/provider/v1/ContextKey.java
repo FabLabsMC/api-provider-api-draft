@@ -10,6 +10,7 @@ import java.util.Objects;
  * Unique reference to a type of context.
  */
 public final class ContextKey<C> {
+    public static final ContextKey<NoContext> NO_CONTEXT = create(NoContext.class, new Identifier("fabric:no_context"));
     private static final Map<Class<?>, Map<Identifier, ContextKey<?>>> contextKeys = new HashMap<>();
 
     private final Class<C> clazz;
