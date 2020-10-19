@@ -1,15 +1,18 @@
 package io.github.fablabsmc.fablabs.api.provider.v1;
 
-import net.minecraft.util.Identifier;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.util.Identifier;
 
 /**
  * Unique reference to a type of context.
  */
 public final class ContextKey<C> {
+    public static final ContextKey<@Nullable Void> NO_CONTEXT = create(Void.class, new Identifier("fabric:no_context"));
     private static final Map<Class<?>, Map<Identifier, ContextKey<?>>> CONTEXT_KEYS = new HashMap<>();
     private final Class<C> clazz;
     private final Identifier identifier;
