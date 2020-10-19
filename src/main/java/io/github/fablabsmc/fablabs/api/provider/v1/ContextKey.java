@@ -13,8 +13,7 @@ import net.minecraft.util.Identifier;
  */
 public final class ContextKey<C> {
     public static final ContextKey<@Nullable Void> NO_CONTEXT = create(Void.class, new Identifier("fabric:no_context"));
-    private static final Map<Class<?>, Map<Identifier, ContextKey<?>>> contextKeys = new HashMap<>();
-
+    private static final Map<Class<?>, Map<Identifier, ContextKey<?>>> CONTEXT_KEYS = new HashMap<>();
     private final Class<C> clazz;
     private final Identifier identifier;
 
@@ -32,11 +31,13 @@ public final class ContextKey<C> {
     }
 
     public synchronized static <C> ContextKey<C> create(Class<C> clazz, Identifier identifier) {
-        Objects.requireNonNull(clazz, "encountered null class in ContextKey creation");
-        Objects.requireNonNull(identifier, "encountered null identifier in ContextKey creation");
+        Objects.requireNonNull(clazz, "Class type cannot be null");
+        Objects.requireNonNull(identifier, "Context key cannot be null");
 
-        contextKeys.putIfAbsent(clazz, new HashMap<>());
-        contextKeys.get(clazz).putIfAbsent(identifier, new ContextKey<>(clazz, identifier));
-        return (ContextKey<C>) contextKeys.get(clazz).get(identifier);
+        CONTEXT_KEYS.putIfAbsent(clazz, new HashMap<>());
+        CONTEXT_KEYS.get(clazz).putIfAbsent(identifier, new ContextKey<>(clazz, identifier));
+
+        //noinspection unchecked
+        return (ContextKey<C>) CONTEXT_KEYS.get(clazz).get(identifier);
     }
 }

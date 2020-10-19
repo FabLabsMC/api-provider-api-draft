@@ -31,12 +31,17 @@ public final class BlockApiLookupImpl<T, C> implements BlockApiLookup<T, C> {
 
     @Override
     public @Nullable T get(World world, BlockPos pos, C context) {
-        @SuppressWarnings("unchecked") BlockApiProvider<T, C> provider = (BlockApiProvider<T, C>) providerMap.get(world.getBlockState(pos).getBlock());
-        if(provider != null) {
+        Objects.requireNonNull(world, "World cannot be null");
+        Objects.requireNonNull(pos, "Block pos cannot be null");
+        // Providers have the final say whether a null context is allowed.
+
+        @SuppressWarnings("unchecked") @Nullable BlockApiProvider<T, C> provider = (BlockApiProvider<T, C>) providerMap.get(world.getBlockState(pos).getBlock());
+
+        if (provider != null) {
             return provider.get(world, pos, context);
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     @Override
@@ -56,18 +61,20 @@ public final class BlockApiLookupImpl<T, C> implements BlockApiLookup<T, C> {
     public void registerForBlockEntities(BlockEntityApiProvider<T, C> provider, BlockEntityType<?>... blockEntityTypes) {
         Objects.requireNonNull(provider, "encountered null BlockEntityApiProvider");
 
-        for(final BlockEntityType<?> bet : blockEntityTypes) {
-            Objects.requireNonNull(bet, "encountered null block entity type while registering a block entity API provider mapping");
+        for(final BlockEntityType<?> blockEntityType : blockEntityTypes) {
+            Objects.requireNonNull(blockEntityType, "encountered null block entity type while registering a block entity API provider mapping");
 
-            Block[] blocks = ((BlockEntityTypeAccessor) bet).getBlocks().toArray(new Block[0]);
-            BlockApiProvider<T, C> blockProvider = (world, pos, context) -> {
-                BlockEntity be = world.getBlockEntity(pos);
-                if(be == null) {
-                    return null;
-                } else {
-                    return provider.get(be, context);
+            final Block[] blocks = ((BlockEntityTypeAccessor) blockEntityType).getBlocks().toArray(new Block[0]);
+            final BlockApiProvider<T, C> blockProvider = (world, pos, context) -> {
+                @Nullable final BlockEntity blockEntity = world.getBlockEntity(pos);
+
+                if (blockEntity != null) {
+                    return provider.get(blockEntity, context);
                 }
+
+                return null;
             };
+
             registerForBlocks(blockProvider, blocks);
         }
     }
