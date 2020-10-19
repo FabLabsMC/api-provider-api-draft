@@ -10,6 +10,7 @@ public final class BlockApiLookupRegistryImpl {
     private static final ApiLookupMap<BlockApiLookupImpl<?, ?>> providers = ApiLookupMap.create(BlockApiLookupImpl::new);
 
     public static <T, C> @NotNull BlockApiLookup<T, C> getLookup(Identifier key, ContextKey<C> contextKey) {
-        return (BlockApiLookup<T, C>) providers.getLookup(key, contextKey);
+        @SuppressWarnings("unchecked") BlockApiLookup<T, C> lookup = (BlockApiLookup<T, C>) providers.getLookup(key, contextKey);
+        return lookup;
     }
 }

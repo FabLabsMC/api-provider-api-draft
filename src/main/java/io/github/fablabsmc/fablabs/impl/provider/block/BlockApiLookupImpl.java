@@ -31,7 +31,7 @@ public final class BlockApiLookupImpl<T, C> implements BlockApiLookup<T, C> {
 
     @Override
     public @Nullable T get(World world, BlockPos pos, C context) {
-        BlockApiProvider<T, C> provider = (BlockApiProvider<T, C>) providerMap.get(world.getBlockState(pos).getBlock());
+        @SuppressWarnings("unchecked") BlockApiProvider<T, C> provider = (BlockApiProvider<T, C>) providerMap.get(world.getBlockState(pos).getBlock());
         if(provider != null) {
             return provider.get(world, pos, context);
         } else {
