@@ -6,11 +6,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import com.mojang.datafixers.util.Unit;
+
 /**
  * Unique reference to a type of context.
  */
 public final class ContextKey<C> {
-    public static final ContextKey<NoContext> NO_CONTEXT = create(NoContext.class, new Identifier("fabric:no_context"));
+    public static final ContextKey<Unit> NO_CONTEXT = create(Unit.class, new Identifier("fabric:no_context"));
     private static final Map<Class<?>, Map<Identifier, ContextKey<?>>> contextKeys = new HashMap<>();
 
     private final Class<C> clazz;
