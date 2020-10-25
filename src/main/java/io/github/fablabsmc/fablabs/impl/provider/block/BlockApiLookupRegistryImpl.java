@@ -11,7 +11,11 @@ public final class BlockApiLookupRegistryImpl {
     private static final ApiLookupMap<BlockApiLookupImpl<?, ?>> PROVIDERS = ApiLookupMap.create(BlockApiLookupImpl::new);
 
     public static <T, C> @NotNull BlockApiLookup<T, C> getLookup(Identifier key, ContextKey<C> contextKey) {
-        @SuppressWarnings("unchecked") BlockApiLookup<T, C> lookup = (BlockApiLookup<T, C>) PROVIDERS.getLookup(key, contextKey);
+        @SuppressWarnings("unchecked")
+		BlockApiLookup<T, C> lookup = (BlockApiLookup<T, C>) PROVIDERS.getLookup(key, contextKey);
         return lookup;
     }
+
+    private BlockApiLookupRegistryImpl() {
+	}
 }

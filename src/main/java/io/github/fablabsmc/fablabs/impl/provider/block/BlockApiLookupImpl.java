@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public final class BlockApiLookupImpl<T, C> implements BlockApiLookup<T, C> {
+final class BlockApiLookupImpl<T, C> implements BlockApiLookup<T, C> {
     private static final Logger LOGGER = LogManager.getLogger();
     private final ApiProviderMap<Block, BlockApiProvider<?, ?>> providerMap = ApiProviderMap.create();
     private final Identifier id;
@@ -35,7 +35,9 @@ public final class BlockApiLookupImpl<T, C> implements BlockApiLookup<T, C> {
         Objects.requireNonNull(pos, "Block pos cannot be null");
         // Providers have the final say whether a null context is allowed.
 
-        @SuppressWarnings("unchecked") @Nullable BlockApiProvider<T, C> provider = (BlockApiProvider<T, C>) providerMap.get(world.getBlockState(pos).getBlock());
+        @SuppressWarnings("unchecked")
+        @Nullable
+        BlockApiProvider<T, C> provider = (BlockApiProvider<T, C>) providerMap.get(world.getBlockState(pos).getBlock());
 
         if (provider != null) {
             return provider.get(world, pos, context);
