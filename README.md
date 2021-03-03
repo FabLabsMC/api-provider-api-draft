@@ -1,3 +1,5 @@
+**_Note: This repository is archived. See https://github.com/FabricMC/fabric/pull/1234/._**
+
 <img src="icon.png" align="right" width="180px"/>
 
 # API Provider draft
